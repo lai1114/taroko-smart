@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>大魯閣智慧排隊系統-顧客端</title>
     <style>
-        :root { --primary: #e60012; --navy: #0D2240; --accent-blue: #1E3D6B; --bg: #f4f6f9; }
+        :root { 
+            --primary: #e60012; 
+            --navy: #0D2240; 
+            --accent-blue: #1E3D6B; 
+            --bg: #f4f6f9; 
+        }
         * { box-sizing: border-box; font-family: 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; }
         .phone { width: 100%; max-width: 400px; background: white; border-radius: 24px; box-shadow: 0 8px 30px rgba(13,34,64,0.15); overflow: hidden; display: flex; flex-direction: column; min-height: 660px; }
-        .header { background: var(--navy); color: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--primary); font-size: 16px; font-weight: bold; letter-spacing: 2px; }
+        .header { background: var(--navy); color: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--primary); font-size: 16px; font-weight: bold; letter-spacing: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .user-bar { background: #e9ecef; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; color: var(--navy); border-bottom: 1px solid #ddd; }
         .token-badge { background: var(--primary); color: white; padding: 3px 12px; border-radius: 12px; font-family: 'Impact', sans-serif; }
         .page { display: none; padding: 25px 20px; flex-direction: column; flex-grow: 1; }
@@ -22,23 +27,28 @@
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         .input-group { margin-bottom: 18px; }
         .input-group label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--accent-blue); font-weight: bold; }
-        .input-group input { width: 100%; padding: 14px; border: 2px solid #ced4da; border-radius: 12px; font-size: 15px; outline: none; }
+        .input-group input { width: 100%; padding: 14px; border: 2px solid #ced4da; border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; }
+        .input-group input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 4px rgba(30,61,107,0.15); }
         .btn { background: var(--navy); color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(13,34,64,0.25); text-align: center; margin-top: 10px; transition: 0.2s; border: none; }
+        .btn:hover { background: var(--accent-blue); }
         .btn:active { transform: scale(0.98); }
-        .btn-primary-color { background: var(--primary); }
+        .btn-primary-color { background: var(--primary); box-shadow: 0 4px 12px rgba(230,0,18,0.25); }
+        .btn-primary-color:hover { background: #b8000e; }
         .btn-sec { background: transparent; color: var(--navy); border: 2px solid var(--navy); box-shadow: none; margin-top: 12px; }
-        .btn-danger { background: #dc3545; color: white; margin-top: 10px; }
+        .btn-sec:hover { background: rgba(13,34,64,0.05); }
+        .btn-danger { background: #dc3545; color: white; margin-top: 10px; box-shadow: 0 4px 10px rgba(220,53,69,0.2); }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 15px; }
-        .card { background: #fff; border: 2px solid #dee2e6; border-radius: 16px; padding: 18px 10px; text-align: center; cursor: pointer; }
-        .card.selected { border-color: var(--primary); background: #fff5f5; }
+        .card { background: #fff; border: 2px solid #dee2e6; border-radius: 16px; padding: 18px 10px; text-align: center; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.02); transition: 0.3s; }
+        .card:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
+        .card.selected { border-color: var(--primary); background: #fff5f5; box-shadow: 0 4px 12px rgba(230,0,18,0.1); }
         .card .icon { font-size: 26px; margin-bottom: 6px; }
         .card .title { font-size: 14px; font-weight: bold; color: var(--navy); }
         .card .info { font-size: 11px; color: #666; margin-top: 5px; font-weight: bold; }
         .board { background: #fffde7; border: 2px dashed #fdd835; border-radius: 14px; padding: 15px; text-align: center; margin-bottom: 15px; }
         .status-box { background: #e8f0fe; border: 1px solid #b3d1ff; border-radius: 14px; padding: 14px; margin-bottom: 15px; font-size: 14px; line-height: 1.6; }
-        .num-big { font-size: 52px; font-weight: 900; color: var(--primary); font-family: 'Impact', sans-serif; }
+        .num-big { font-size: 52px; font-weight: 900; color: var(--primary); font-family: 'Impact', sans-serif; letter-spacing: 1px; }
         .progress-container { width: 100%; background-color: #eee; border-radius: 10px; margin-top: 10px; height: 12px; overflow: hidden; }
-        .progress-bar { width: 100%; height: 100%; background-color: var(--primary); width: 0%; }
+        .progress-bar { width: 100%; height: 100%; background-color: var(--primary); width: 100%; transition: none; }
         .qrcode-container { display: flex; justify-content: center; align-items: center; margin: 15px 0; background: white; padding: 12px; border-radius: 14px; border: 2px solid #eee; }
     </style>
 </head>
@@ -86,7 +96,7 @@
                     <div class="board" style="margin-top: 10px; padding: 8px;"><p>目前叫號：<span id="hCurCall" style="font-weight:bold;">-</span> / 您的號碼：<span id="hMyNum" style="font-weight:bold; color: #0056b3;">-</span></p></div>
                     
                     <div id="homeQrZone" style="text-align: center; display: none; margin-top: 10px;">
-                        <p style="font-size: 12px; color: #555; font-weight: bold;">🎟️ 專屬入場 QR Code (對準道閘掃描)</p>
+                        <p style="font-size: 12px; color: #555; font-weight: bold;">🎟️ 專屬入場 QR Code (請對準球道閘機掃描)</p>
                         <div class="qrcode-container"><img id="homeQrImg" src="" alt="QR Code"></div>
                     </div>
 
@@ -162,12 +172,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script>
-        // 大魯閣班級連線大腦
-        const client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "tk_c_" + Math.random().toString(16).substr(2, 8));
-        const TOPIC_SYNC = "taroko/smart/sync/v3";
+        const client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "tk_cl_" + Math.random().toString(16).substr(2, 8));
+        const TOPIC_SYNC = "taroko/smart/sync/v2";
         let chosenLaneId = null, chosenLaneName = "", chosenTokens = 0, chosenMins = 0;
-        let hasAlertedCalled = false, localTimer = null, startTime = 0;
-        let db = { members: {}, lanes: {1:{c:0,l:0},2:{c:0,l:0},3:{c:0,l:0},4:{c:0,l:0}}, user_queue: {} };
+        let hasAlertedCalled = false, isProcessingTimeout = false;
+        let db = { members: {}, lanes: {1:{c:0,l:0,t:0,b:false},2:{c:0,l:0,t:0,b:false},3:{c:0,l:0,t:0,b:false},4:{c:0,l:0,t:0,b:false}}, user_queue: {} };
 
         client.onMessageArrived = function(msg) {
             try {
@@ -177,7 +186,6 @@
                     if(db.members[logged]) {
                         document.getElementById('barTokens').innerText = db.members[logged].tokens;
                     }
-                    // 每次雲端收到後台動態，立刻同步刷新介面
                     if(document.getElementById('pMenu').classList.contains('active')) { updateMenuUI(); }
                 }
                 if(document.getElementById('pLaneSelect').classList.contains('active')) { updateLaneSelectUI(); }
@@ -186,11 +194,11 @@
         client.connect({ onSuccess: () => { client.subscribe(TOPIC_SYNC); syncDB(); } });
 
         function syncDB() { if(client.isConnected()) { client.send(TOPIC_SYNC, JSON.stringify(db), 0, true); } }
-        function go(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); let logged = localStorage.getItem('tk_current_logged_phone'); if(logged && db.members[logged]) { document.getElementById('barName').innerText = db.members[logged].name; document.getElementById('barTokens').innerText = db.members[logged].tokens; } if(id==='pMenu') { updateMenuUI(); } if(id==='pLaneSelect') updateLaneSelectUI(); }
+        function go(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); let logged = localStorage.getItem('tk_current_logged_phone'); if(logged && db.members[logged]) { document.getElementById('barName').innerText = db.members[logged].name; document.getElementById('barTokens').innerText = db.members[logged].tokens; } if(id==='pMenu') { isProcessingTimeout = false; updateMenuUI(); } if(id==='pLaneSelect') updateLaneSelectUI(); }
         function fmt(n) { return n === 0 ? "000" : String(n).padStart(3, '0'); }
         function register() { let n = document.getElementById('regName').value.trim(), p = document.getElementById('regPhone').value.trim(); if(!n||!p) return alert("請完整填寫註冊資料！"); db.members[p] = { name: n, tokens: 60 }; syncDB(); alert("🎉 註冊成功！預設代幣已補滿 60 枚。"); go('pLogin'); }
         function login() { let p = document.getElementById('logPhone').value.trim(); if(!db.members[p]) return alert("找不到帳號，請先註冊！"); localStorage.setItem('tk_current_logged_phone', p); go('pMenu'); }
-        function logout() { localStorage.removeItem('tk_current_logged_phone'); if(localTimer) clearInterval(localTimer); go('pLogin'); }
+        function logout() { localStorage.removeItem('tk_current_logged_phone'); go('pLogin'); }
         function charge(amt) { let p = localStorage.getItem('tk_current_logged_phone'); db.members[p].tokens += amt; syncDB(); alert(`💳 儲值成功！增加 ${amt} 枚代幣。`); go('pMenu'); }
         function updateLaneSelectUI() { for(let i=1; i<=4; i++) { let w = db.lanes[i].l - db.lanes[i].c; document.getElementById(`laneInfo${i}`).innerText = `排隊：${w}人 / 需等：${w * 5}分鐘`; } }
         function selectLane(id, name) { chosenLaneId = id; chosenLaneName = name; document.querySelectorAll('#pLaneSelect .card').forEach(c => c.classList.remove('selected')); document.getElementById(`lane${id}`).classList.add('selected'); }
@@ -212,7 +220,7 @@
             document.getElementById('sucLane').innerText = chosenLaneName;
             document.getElementById('sucTime').innerText = (myNum - 1 - db.lanes[chosenLaneId].c) * 5;
             document.getElementById('sucTokens').innerText = db.members[p].tokens;
-            hasAlertedCalled = false;
+            hasAlertedCalled = false; isProcessingTimeout = false;
             go('pSuccess');
         }
 
@@ -234,82 +242,53 @@
         }
 
         function autoRefundOvertime() {
-            if(localTimer) clearInterval(localTimer);
+            if (isProcessingTimeout) return; isProcessingTimeout = true;
             let p = localStorage.getItem('tk_current_logged_phone'), q = db.user_queue[p];
-            if(!q) return;
-            db.members[p].tokens += q.cost;
-            delete db.user_queue[p];
-            syncDB();
+            db.members[p].tokens += q.cost; delete db.user_queue[p]; syncDB();
             speak("已過號，請重新排隊。");
-            document.getElementById('timerZone').style.display = 'none';
-            hasAlertedCalled = false;
-            go('pMenu');
-            alert(`⏱️ 您已超過 30 秒未進場報到。\n系統已自動為您過號並辦理退款，請重新排隊。`);
-        }
-
-        // 【極致修復】：100% 獨立的本地高流暢計時器引擎（不依賴伺服器時差）
-        function startLocalCountdown() {
-            if(localTimer) clearInterval(localTimer);
-            startTime = Date.now();
-            
-            localTimer = setInterval(() => {
-                let passed = Date.now() - startTime;
-                let rem = (30000 - passed) / 1000;
-                
-                if(rem >= 0) {
-                    document.getElementById('countdownSec').innerText = rem.toFixed(1);
-                    document.getElementById('pBar').style.width = (rem / 30 * 100) + '%';
-                } else {
-                    clearInterval(localTimer);
-                    autoRefundOvertime(); // 時間到，主動退幣
-                }
-            }, 100); // 每 0.1 秒極速渲染
+            go('pMenu'); alert(`⏱️ 您已超過 30 秒未進場報到。系統已自動將您過號並退幣。`);
         }
 
         function updateMenuUI() {
-            let p = localStorage.getItem('tk_current_logged_phone');
-            if(!p || !db.user_queue[p]) {
-                if(localTimer) clearInterval(localTimer);
-                document.getElementById('hasNoQueue').style.display = 'block';
-                document.getElementById('hasQueue').style.display = 'none';
-                document.getElementById('btnGoQueue').style.display = 'block';
-                return;
-            }
-            document.getElementById('hasNoQueue').style.display = 'none';
-            document.getElementById('hasQueue').style.display = 'block';
-            document.getElementById('btnGoQueue').style.display = 'none';
-            
+            let p = localStorage.getItem('tk_current_logged_phone'); if(!p || !db.user_queue[p]) { document.getElementById('hasNoQueue').style.display = 'block'; document.getElementById('hasQueue').style.display = 'none'; document.getElementById('btnGoQueue').style.display = 'block'; return; }
+            document.getElementById('hasNoQueue').style.display = 'none'; document.getElementById('hasQueue').style.display = 'block'; document.getElementById('btnGoQueue').style.display = 'none';
             let q = db.user_queue[p], lane = db.lanes[q.laneId];
-            document.getElementById('hLane').innerText = q.laneName;
-            document.getElementById('hCurCall').innerText = fmt(lane.c);
-            document.getElementById('hMyNum').innerText = fmt(q.myNum);
-            document.getElementById('homeQrZone').style.display = 'block';
-            document.getElementById('homeQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=TAROKO_LANE_${q.laneId}_NUM_${q.myNum}`;
+            document.getElementById('hLane').innerText = q.laneName; document.getElementById('hCurCall').innerText = fmt(lane.c); document.getElementById('hMyNum').innerText = fmt(q.myNum);
+            document.getElementById('homeQrZone').style.display = 'block'; document.getElementById('homeQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=TAROKO_LANE_${q.laneId}_NUM_${q.myNum}`;
             
-            // 關鍵觸發點：只要發現叫號對上自己，且還沒響過通知
             if (q.myNum === lane.c) {
-                document.getElementById('hWaitCount').innerText = "0";
-                document.getElementById('hWaitTime').innerHTML = `<span style="color:green; font-weight:bold;">🔥 到您了！請進場！</span>`;
-                document.getElementById('timerZone').style.display = 'block';
+                document.getElementById('hWaitCount').innerText = "0"; 
+                document.getElementById('hWaitTime').innerHTML = `<span style="color:green; font-weight:bold;">🔥 到您了！請進場！</span>`; 
+                
+                // 【核心修正】：叫號對上自己，且後台還沒按下確認報到（即 lane.b 為 false）時，一定要大方秀出計時器
+                if (!lane.b) {
+                    document.getElementById('timerZone').style.display = 'block'; 
+                } else {
+                    document.getElementById('timerZone').style.display = 'none'; // 擊球中則隱藏倒數
+                }
                 document.getElementById('btnCancel').style.display = 'none';
                 
                 if(!hasAlertedCalled) {
-                    hasAlertedCalled = true;
-                    startLocalCountdown(); // 1. 手機立刻啟動本地倒數
-                    speak(`換你了！號碼牌 ${fmt(q.myNum)} 號球友，請立即報到！`); // 2. 發出語音
-                    setTimeout(() => { alert(`🚨【大魯閣通知】換你了！\n請在 30 秒內完成核銷報到！`); }, 100); // 3. 彈出通知框
+                    speak(`換你了！號碼牌 ${fmt(q.myNum)} 號球友，請立即報到！`);
+                    alert(`🚨【大魯閣通知】換你了！請在 30 秒內完成核銷報到！`); hasAlertedCalled = true;
                 }
-            } else if (q.myNum < lane.c) {
-                // 如果在後台被強行跳號
-                autoRefundOvertime();
-            } else {
-                document.getElementById('hWaitCount').innerText = q.myNum - lane.c - 1;
-                document.getElementById('hWaitTime').innerText = (q.myNum - lane.c - 1) * 5;
-                document.getElementById('timerZone').style.display = 'none';
-                document.getElementById('btnCancel').style.display = 'block';
-                if(localTimer) { clearInterval(localTimer); hasAlertedCalled = false; }
-            }
+            } else if (q.myNum < lane.c) { autoRefundOvertime(); } 
+            else { document.getElementById('hWaitCount').innerText = q.myNum - lane.c - 1; document.getElementById('hWaitTime').innerText = (q.myNum - lane.c - 1) * 5; document.getElementById('timerZone').style.display = 'none'; document.getElementById('btnCancel').style.display = 'block'; }
         }
+
+        function renderLoop() {
+            let p = localStorage.getItem('tk_current_logged_phone');
+            if(p && document.getElementById('pMenu').classList.contains('active') && db.user_queue[p]) {
+                let q = db.user_queue[p], lane = db.lanes[q.laneId];
+                if(q.myNum === lane.c && lane.t > 0 && !isProcessingTimeout && !lane.b) {
+                    let rem = (30000 - (Date.now() - lane.t)) / 1000;
+                    if(rem >= 0) { document.getElementById('countdownSec').innerText = rem.toFixed(1); document.getElementById('pBar').style.width = (rem / 30 * 100) + '%'; }
+                    else { autoRefundOvertime(); }
+                }
+            }
+            requestAnimationFrame(renderLoop);
+        }
+        window.onload = () => { go(localStorage.getItem('tk_current_logged_phone') ? 'pMenu' : 'pLogin'); requestAnimationFrame(renderLoop); };
     </script>
 </body>
 </html>

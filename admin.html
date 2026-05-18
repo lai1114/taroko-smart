@@ -13,18 +13,19 @@
         .lane-box.busy { border-left-color: #ffc107; }
         .lane-title { font-weight: bold; font-size: 17px; margin-bottom: 8px; }
         .lane-status { font-size: 13px; color: #cbd5e1; margin-bottom: 5px; line-height: 1.6; }
+        .timer-text { color: #e60012; font-weight: bold; font-size: 16px; }
         .btn-check { background: #28a745; color: white; border: none; padding: 8px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; float: right; font-size: 13px; }
         .member-panel { background: #102A4D; border-radius: 12px; padding: 15px; margin-top: 25px; border: 1px solid #1E3D6B; }
         .member-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; text-align: left; }
         .member-table th { background: #071324; color: #ffc107; padding: 10px; font-weight: bold; }
         .member-table td { padding: 10px; border-bottom: 1px solid #1E3D6B; color: #e2e8f0; }
-        .btn-danger-zone { background: #e60012; color: white; border: none; padding: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 25px; font-size: 15px; box-shadow: 0 4px 12px rgba(230,0,18,0.3); }
+        .btn-danger-zone { background: #e60012; color: white; border: none; padding: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 25px; font-size: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🤖 大魯閣中央智慧雲端中控台</h1>
-        <div class="subtitle">【全班真實跨裝置同步連線中】空道自動遞補智慧叫號</div>
+        <div class="subtitle">【全班真實跨裝置同步連線中】30秒超時未到自動過號退款</div>
         <div id="lanesList"></div>
         <div class="member-panel">
             <h3>👥 現場連線註冊會員名冊 (資安去識別化過濾)</h3>
@@ -33,53 +34,61 @@
                 <tbody id="memberListBody"></tbody>
             </table>
         </div>
-        <button class="btn-danger-zone" onclick="wipeOutEverything()">🔥 全店終極大重整 (抹除雲端所有資料)</button>
+        <button class="btn-danger-zone" onclick="wipeOutEverything()">🔥 全店終極大重整 (抹除所有會員、代幣與排隊)</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script>
         const client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "tk_ad_" + Math.random().toString(16).substr(2, 8));
-        const TOPIC_SYNC = "taroko/smart/sync/v3";
+        const TOPIC_SYNC = "taroko/smart/sync/v2";
         const lanes = [{ id: 1, name: "90km 慢速打擊道" }, { id: 2, name: "110km 中速打擊道" }, { id: 3, name: "130km 快速打擊道" }, { id: 4, name: "壘球 慢速拋球道" }];
-        let db = { members: {}, lanes: {1:{c:0,l:0,b:false},2:{c:0,l:0,b:false},3:{c:0,l:0,b:false},4:{c:0,l:0,b:false}}, user_queue: {} };
+        let db = { members: {}, lanes: {1:{c:0,l:0,t:0,b:false},2:{c:0,l:0,t:0,b:false},3:{c:0,l:0,t:0,b:false},4:{c:0,l:0,t:0,b:false}}, user_queue: {} };
 
-        client.onMessageArrived = function(msg) { try { db = JSON.parse(msg.payloadString); renderDashboard(); } catch(e){} };
+        // 【終極修復點】：收到雲端資料後，精準呼叫原本定義渲染畫面的「checkAndAutoManage()」函數
+        client.onMessageArrived = function(msg) { 
+            try {
+                db = JSON.parse(msg.payloadString); 
+                checkAndAutoManage(); 
+            } catch(e){}
+        };
         client.connect({ onSuccess: () => { client.subscribe(TOPIC_SYNC); } });
         
         function syncDB() { if(client.isConnected()) { client.send(TOPIC_SYNC, JSON.stringify(db), 0, true); } }
         function fmt(n) { return n === 0 ? "000" : String(n).padStart(3, '0'); }
 
         function checkAndAutoManage() {
-            let changed = false;
+            let html = "", now = Date.now(), changed = false;
             lanes.forEach(l => {
                 let lane = db.lanes[l.id];
-                // 如果有人排隊，且球道是空的，自動往前遞補叫下一號
-                if (lane.l > lane.c && !lane.b) {
-                    lane.c++;
-                    changed = true;
+                
+                // 自動遞補叫號機制
+                if (lane.l > lane.c && !lane.b && (!lane.t || lane.t === 0)) {
+                    lane.c++; lane.t = now; changed = true;
                 }
-            });
-            if(changed) syncDB();
-        }
 
-        function renderDashboard() {
-            let html = "";
-            lanes.forEach(l => {
-                let lane = db.lanes[l.id];
                 let statusText = "💤 目前無人排隊，球道閒置中";
                 if (lane.b) { statusText = `🟢 擊球中... 正在消耗代幣`; }
-                else if (lane.l > lane.c || lane.c > 0) { statusText = `📢 號碼 <strong>${fmt(lane.c)}</strong> 正在叫號與入場確認中`; }
+                else if (lane.t > 0) {
+                    let rem = (30000 - (now - lane.t)) / 1000;
+                    if (rem <= 0) {
+                        let targetUser = Object.keys(db.user_queue).find(k => db.user_queue[k].laneId === l.id && db.user_queue[k].myNum === lane.c);
+                        if(targetUser) { db.members[targetUser].tokens += db.user_queue[targetUser].cost; delete db.user_queue[targetUser]; }
+                        lane.t = 0; changed = true; return;
+                    }
+                    statusText = `⏳ 號碼 <strong>${fmt(lane.c)}</strong> 叫號中！剩餘 <span class="timer-text">${rem.toFixed(1)}秒</span>`;
+                }
 
                 let wait = lane.l - lane.c; if(wait < 0) wait = 0;
                 html += `
                     <div class="lane-box ${lane.b ? 'busy' : ''}">
-                        ${lane.c > 0 && !lane.b ? `<button class="btn-check" onclick="confirmCheckIn(${l.id})">✅ 確認報到</button>` : ''}
+                        ${lane.t > 0 && !lane.b ? `<button class="btn-check" onclick="confirmCheckIn(${l.id})">✅ 確認報到</button>` : ''}
                         ${lane.b ? `<button class="btn-check" style="background:#6c757d;" onclick="finishHitting(${l.id})">🏁 擊球結束</button>` : ''}
                         <div class="lane-title">${l.name}</div>
                         <div class="lane-status">📌 當前叫號：<strong>${fmt(lane.c)}</strong> | 總取號至：<strong>${fmt(lane.l)}</strong> | 排隊中：<strong>${wait} 人</strong><br>📢 狀態：${statusText}</div>
                     </div>
                 `;
             });
+            if(changed) syncDB();
             document.getElementById('lanesList').innerHTML = html;
             renderMembers();
         }
@@ -93,12 +102,12 @@
             document.getElementById('memberListBody').innerHTML = html || `<tr><td colspan="3" style="text-align:center;color:#888;">目前無連線資料</td></tr>`;
         }
 
-        function confirmCheckIn(id) { db.lanes[id].b = true; syncDB(); }
+        function confirmCheckIn(id) { db.lanes[id].b = true; db.lanes[id].t = 0; syncDB(); }
         function finishHitting(id) { db.lanes[id].b = false; syncDB(); }
-        function wipeOutEverything() { if(confirm("確定要全面清洗雲端大腦嗎？")) { db = { members: {}, lanes: {1:{c:0,l:0,b:false},2:{c:0,l:0,b:false},3:{c:0,l:0,b:false},4:{c:0,l:0,b:false}}, user_queue: {} }; syncDB(); } }
+        function wipeOutEverything() { if(confirm("確定要全面清洗雲端大腦嗎？")) { db = { members: {}, lanes: {1:{c:0,l:0,t:0,b:false},2:{c:0,l:0,t:0,b:false},3:{c:0,l:0,t:0,b:false},4:{c:0,l:0,t:0,b:false}}, user_queue: {} }; syncDB(); } }
 
-        // 每秒檢查一次是否需要叫號
-        setInterval(checkAndAutoManage, 1000);
+        // 每 0.1 秒強制中控台高頻刷新畫面渲染
+        setInterval(checkAndAutoManage, 100);
     </script>
 </body>
 </html>
