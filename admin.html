@@ -3,197 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大魯閣-智慧中控自動化系統</title>
+    <title>大魯閣-中央智慧雲端中控台</title>
     <style>
-        /* 同步大魯閣官網大器深藍色 */
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #071324; color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 650px; background: #0D2240; padding: 25px; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); border: 1px solid #1E3D6B; }
-        h1 { font-size: 22px; text-align: center; color: #ffc107; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
-        .subtitle { text-align: center; color: #a2b4cd; font-size: 13px; margin-bottom: 25px; }
-        
-        .lane-box { background: #162E50; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 6px solid #28a745; transition: 0.3s; }
-        .lane-box.busy { border-left-color: #ffc107; background: #1F385C; }
-        .lane-title { font-weight: bold; font-size: 17px; margin-bottom: 8px; color: #fff; }
+        body { font-family: Arial, sans-serif; background: #071324; color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 650px; background: #0D2240; padding: 25px; border-radius: 20px; border: 1px solid #1E3D6B; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+        h1 { font-size: 22px; text-align: center; color: #ffc107; margin-bottom: 5px; font-weight: bold; }
+        .subtitle { text-align: center; color: #cbd5e1; font-size: 13px; margin-bottom: 25px; }
+        .lane-box { background: #162E50; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 6px solid #28a745; }
+        .lane-box.busy { border-left-color: #ffc107; }
+        .lane-title { font-weight: bold; font-size: 17px; margin-bottom: 8px; }
         .lane-status { font-size: 13px; color: #cbd5e1; margin-bottom: 5px; line-height: 1.6; }
-        .timer-text { color: #e60012; font-weight: bold; font-size: 16px; font-family: 'Impact', sans-serif; }
-        
-        .btn-check { background: #28a745; color: white; border: none; padding: 8px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; float: right; font-size: 13px; transition: 0.2s; }
-        .btn-check:hover { background: #218838; }
-        
-        /* 會員資料名冊特有樣式 */
+        .btn-check { background: #28a745; color: white; border: none; padding: 8px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; float: right; font-size: 13px; }
         .member-panel { background: #102A4D; border-radius: 12px; padding: 15px; margin-top: 25px; border: 1px solid #1E3D6B; }
         .member-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; text-align: left; }
         .member-table th { background: #071324; color: #ffc107; padding: 10px; font-weight: bold; }
         .member-table td { padding: 10px; border-bottom: 1px solid #1E3D6B; color: #e2e8f0; }
-        
-        .btn-reset { background: #4a5568; color: white; border: none; padding: 10px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 25px; font-size: 12px; }
-        .btn-danger-zone { background: #e60012; color: white; border: none; padding: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 10px; font-size: 15px; font-weight: bold; box-shadow: 0 4px 12px rgba(230,0,18,0.3); }
+        .btn-danger-zone { background: #e60012; color: white; border: none; padding: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 25px; font-size: 15px; box-shadow: 0 4px 12px rgba(230,0,18,0.3); }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h1>🤖 大魯閣中央智慧中控台 (自動叫號系統)</h1>
-        <div class="subtitle">【30秒動態流暢計時版】自動遞補 ➔ 30秒超時未到自動過號</div>
-        
+        <h1>🤖 大魯閣中央智慧雲端中控台</h1>
+        <div class="subtitle">【全班真實跨裝置同步連線中】空道自動遞補智慧叫號</div>
         <div id="lanesList"></div>
-
         <div class="member-panel">
-            <h3 style="font-size: 15px; color: #fff; border-left: 4px solid #ffc107; padding-left: 10px;">👥 現場連線註冊會員名冊 (資安去識別化過濾)</h3>
+            <h3>👥 現場連線註冊會員名冊 (資安去識別化過濾)</h3>
             <table class="member-table">
-                <thead>
-                    <tr>
-                        <th>球友姓名/暱稱</th>
-                        <th>帳號 (手機號碼)</th>
-                        <th>智慧錢包餘額</th>
-                    </tr>
-                </thead>
-                <tbody id="memberListBody">
-                    <tr><td colspan="3" style="text-align:center; color:#888;">目前尚無連線註冊資料</td></tr>
-                </tbody>
+                <thead><tr><th>球友姓名/暱稱</th><th>帳號 (手機號碼)</th><th>智慧錢包餘額</th></tr></thead>
+                <tbody id="memberListBody"></tbody>
             </table>
         </div>
-
-        <button class="btn-reset" onclick="resetQueuesOnly()">🔄 僅清除與重置排隊數據</button>
-        <button class="btn-danger-zone" onclick="wipeOutEverything()">🔥 全店終極大重整 (抹除所有會員、代幣與排隊)</button>
+        <button class="btn-danger-zone" onclick="wipeOutEverything()">🔥 全店終極大重整 (抹除雲端所有資料)</button>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script>
-        const lanes = [
-            { id: 1, name: "90km 慢速打擊道" },
-            { id: 2, name: "110km 中速打擊道" },
-            { id: 3, name: "130km 快速打擊道" },
-            { id: 4, name: "壘球 慢速拋球道" }
-        ];
+        const client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "tk_ad_" + Math.random().toString(16).substr(2, 8));
+        const TOPIC_SYNC = "taroko/smart/sync/v3";
+        const lanes = [{ id: 1, name: "90km 慢速打擊道" }, { id: 2, name: "110km 中速打擊道" }, { id: 3, name: "130km 快速打擊道" }, { id: 4, name: "壘球 慢速拋球道" }];
+        let db = { members: {}, lanes: {1:{c:0,l:0,b:false},2:{c:0,l:0,b:false},3:{c:0,l:0,b:false},4:{c:0,l:0,b:false}}, user_queue: {} };
 
+        client.onMessageArrived = function(msg) { try { db = JSON.parse(msg.payloadString); renderDashboard(); } catch(e){} };
+        client.connect({ onSuccess: () => { client.subscribe(TOPIC_SYNC); } });
+        
+        function syncDB() { if(client.isConnected()) { client.send(TOPIC_SYNC, JSON.stringify(db), 0, true); } }
         function fmt(n) { return n === 0 ? "000" : String(n).padStart(3, '0'); }
 
-        // 手機號碼遮罩函數 (隱碼機制：前4後3，中間用***代替)
-        function maskPhone(phone) {
-            if(!phone || phone.length < 7) return phone;
-            return phone.substring(0, 4) + "***" + phone.substring(phone.length - 3);
+        function checkAndAutoManage() {
+            let changed = false;
+            lanes.forEach(l => {
+                let lane = db.lanes[l.id];
+                // 如果有人排隊，且球道是空的，自動往前遞補叫下一號
+                if (lane.l > lane.c && !lane.b) {
+                    lane.c++;
+                    changed = true;
+                }
+            });
+            if(changed) syncDB();
         }
 
-        function checkAndAutoManage() {
+        function renderDashboard() {
             let html = "";
-            let now = Date.now();
-
             lanes.forEach(l => {
-                let curCall = parseInt(localStorage.getItem(`tk_lane_${l.id}_curCall`)) || 0;
-                let latTick = parseInt(localStorage.getItem(`tk_lane_${l.id}_latTick`)) || 0;
-                let timerStart = parseInt(localStorage.getItem(`tk_lane_${l.id}_timerStart`)) || 0;
-                let isBusy = localStorage.getItem(`tk_lane_${l.id}_isBusy`) === 'true';
+                let lane = db.lanes[l.id];
+                let statusText = "💤 目前無人排隊，球道閒置中";
+                if (lane.b) { statusText = `🟢 擊球中... 正在消耗代幣`; }
+                else if (lane.l > lane.c || lane.c > 0) { statusText = `📢 號碼 <strong>${fmt(lane.c)}</strong> 正在叫號與入場確認中`; }
 
-                // 自動叫號
-                if (latTick > curCall && !isBusy && timerStart === 0) {
-                    curCall++; 
-                    localStorage.setItem(`tk_lane_${l.id}_curCall`, curCall);
-                    localStorage.setItem(`tk_lane_${l.id}_timerStart`, now); 
-                    timerStart = now;
-                    localStorage.setItem('tk_sync', now);
-                }
-
-                let remaining = 30; // 基礎值調整為 30
-                let statusText = "";
-
-                if (isBusy) {
-                    statusText = `<span style="color:#28a745; font-weight:bold;">🟢 擊球中... 球道運作中</span>`;
-                } else if (timerStart > 0) {
-                    let passedMilli = now - timerStart;
-                    let remFloat = (30000 - passedMilli) / 1000; // 30秒高精度計算
-
-                    if (remFloat <= 0) {
-                        localStorage.setItem(`tk_lane_${l.id}_timerStart`, 0);
-                        localStorage.setItem('tk_sync', now);
-                        return; 
-                    }
-                    statusText = `⏳ 號碼 <strong>${fmt(curCall)}</strong> 叫號中！剩餘 <span class="timer-text">${remFloat.toFixed(1)}秒</span> 進入時間`;
-                } else {
-                    statusText = `💤 目前無人排隊，球道閒置中`;
-                }
-
-                let wait = latTick - curCall;
-                if(wait < 0) wait = 0;
-
+                let wait = lane.l - lane.c; if(wait < 0) wait = 0;
                 html += `
-                    <div class="lane-box ${isBusy ? 'busy' : ''}">
-                        ${timerStart > 0 && !isBusy ? `<button class="btn-check" onclick="confirmCheckIn(${l.id})">✅ 確認報到</button>` : ''}
-                        ${isBusy ? `<button class="btn-check" style="background:#6c757d;" onclick="finishHitting(${l.id})">🏁 擊球結束</button>` : ''}
+                    <div class="lane-box ${lane.b ? 'busy' : ''}">
+                        ${lane.c > 0 && !lane.b ? `<button class="btn-check" onclick="confirmCheckIn(${l.id})">✅ 確認報到</button>` : ''}
+                        ${lane.b ? `<button class="btn-check" style="background:#6c757d;" onclick="finishHitting(${l.id})">🏁 擊球結束</button>` : ''}
                         <div class="lane-title">${l.name}</div>
-                        <div class="lane-status">
-                            📌 當前叫號：<strong>${fmt(curCall)}</strong> &nbsp;|&nbsp; 總取號數：<strong>${fmt(latTick)}</strong> &nbsp;|&nbsp; 後續排隊：<strong>${wait} 人</strong><br>
-                            📢 狀態：${statusText}
-                        </div>
+                        <div class="lane-status">📌 當前叫號：<strong>${fmt(lane.c)}</strong> | 總取號至：<strong>${fmt(lane.l)}</strong> | 排隊中：<strong>${wait} 人</strong><br>📢 狀態：${statusText}</div>
                     </div>
                 `;
             });
             document.getElementById('lanesList').innerHTML = html;
-            renderMembers(); // 同步重整會員列表
+            renderMembers();
         }
 
-        // 渲染現場註冊的會員名單
         function renderMembers() {
-            let members = JSON.parse(localStorage.getItem('tk_all_members') || "[]");
-            let tbody = document.getElementById('memberListBody');
-            
-            if(members.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">目前尚無連線註冊資料</td></tr>`;
-                return;
-            }
-
             let html = "";
-            members.forEach(phone => {
-                let name = localStorage.getItem('tk_pwd_' + phone) || "未知球友";
-                let tokens = localStorage.getItem('tk_tkn_' + phone) || 0;
-                html += `
-                    <tr>
-                        <td><strong>${name}</strong></td>
-                        <td><code>${maskPhone(phone)}</code></td>
-                        <td><span style="color:#ffc107; font-weight:bold;">${tokens}</span> 枚代幣</td>
-                    </tr>
-                `;
+            Object.keys(db.members).forEach(p => {
+                let m = db.members[p];
+                html += `<tr><td><strong>${m.name}</strong></td><td><code>${p.substring(0,4)}***${p.substring(p.length-3)}</code></td><td>${m.tokens} 枚</td></tr>`;
             });
-            tbody.innerHTML = html;
+            document.getElementById('memberListBody').innerHTML = html || `<tr><td colspan="3" style="text-align:center;color:#888;">目前無連線資料</td></tr>`;
         }
 
-        function confirmCheckIn(id) {
-            localStorage.setItem(`tk_lane_${id}_isBusy`, 'true');
-            localStorage.setItem(`tk_lane_${id}_timerStart`, 0); 
-            localStorage.setItem('tk_sync', Date.now());
-            checkAndAutoManage();
-        }
+        function confirmCheckIn(id) { db.lanes[id].b = true; syncDB(); }
+        function finishHitting(id) { db.lanes[id].b = false; syncDB(); }
+        function wipeOutEverything() { if(confirm("確定要全面清洗雲端大腦嗎？")) { db = { members: {}, lanes: {1:{c:0,l:0,b:false},2:{c:0,l:0,b:false},3:{c:0,l:0,b:false},4:{c:0,l:0,b:false}}, user_queue: {} }; syncDB(); } }
 
-        function finishHitting(id) {
-            localStorage.setItem(`tk_lane_${id}_isBusy`, 'false');
-            localStorage.setItem('tk_sync', Date.now());
-            checkAndAutoManage();
-        }
-
-        function resetQueuesOnly() {
-            if(confirm("確定要重置所有球道的排隊數據嗎？(註冊帳戶會保留)")) {
-                lanes.forEach(l => {
-                    localStorage.setItem(`tk_lane_${l.id}_curCall`, 0);
-                    localStorage.setItem(`tk_lane_${l.id}_latTick`, 0);
-                    localStorage.setItem(`tk_lane_${l.id}_timerStart`, 0);
-                    localStorage.setItem(`tk_lane_${l.id}_isBusy`, 'false');
-                });
-                localStorage.setItem('tk_sync', Date.now());
-                checkAndAutoManage();
-            }
-        }
-
-        function wipeOutEverything() {
-            if(confirm("🚨 終極警告！這將全面抹除所有同學註冊的帳號、錢包餘額與所有進度！\n確定要全面大清洗嗎？")) {
-                localStorage.clear();
-                localStorage.setItem('tk_sync', Date.now());
-                alert("💥 全店數據、註冊名冊已徹底蒸發重整！");
-                checkAndAutoManage();
-            }
-        }
-
-        setInterval(checkAndAutoManage, 100);
-        window.addEventListener('storage', checkAndAutoManage);
-        window.onload = checkAndAutoManage;
+        // 每秒檢查一次是否需要叫號
+        setInterval(checkAndAutoManage, 1000);
     </script>
 </body>
 </html>

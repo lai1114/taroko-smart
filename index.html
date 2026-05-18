@@ -5,69 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>大魯閣智慧排隊系統-顧客端</title>
     <style>
-        /* 全面同步大魯閣網頁官方配色 */
-        :root { 
-            --primary: #e60012; 
-            --navy: #0D2240; /* 大魯閣標準網頁深藍 */
-            --accent-blue: #1E3D6B; /* 網頁亮藍 */
-            --bg: #f4f6f9; 
-        }
+        :root { --primary: #e60012; --navy: #0D2240; --accent-blue: #1E3D6B; --bg: #f4f6f9; }
         * { box-sizing: border-box; font-family: 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg); color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; }
         .phone { width: 100%; max-width: 400px; background: white; border-radius: 24px; box-shadow: 0 8px 30px rgba(13,34,64,0.15); overflow: hidden; display: flex; flex-direction: column; min-height: 660px; }
-        
-        /* 頭部視覺 */
-        .header { background: var(--navy); color: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--primary); font-size: 16px; font-weight: bold; letter-spacing: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header { background: var(--navy); color: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--primary); font-size: 16px; font-weight: bold; letter-spacing: 2px; }
         .user-bar { background: #e9ecef; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; color: var(--navy); border-bottom: 1px solid #ddd; }
         .token-badge { background: var(--primary); color: white; padding: 3px 12px; border-radius: 12px; font-family: 'Impact', sans-serif; }
-        
         .page { display: none; padding: 25px 20px; flex-direction: column; flex-grow: 1; }
         .page.active { display: flex; }
         h2 { font-size: 22px; margin-bottom: 20px; text-align: center; color: var(--navy); font-weight: bold; }
-        
-        /* 登入頁 Logo 設計 */
         .logo-container { text-align: center; margin: 25px 0 15px 0; }
         .logo-icon { font-size: 65px; color: var(--navy); text-shadow: 2px 2px 0px var(--primary); animation: bounce 2s infinite; }
         .logo-text { font-size: 24px; font-weight: 900; color: var(--navy); letter-spacing: 3px; margin-top: 10px; font-style: italic; }
         .logo-sub { font-size: 11px; color: #666; letter-spacing: 1px; margin-top: 2px; }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        /* 輸入框與按鈕 */
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         .input-group { margin-bottom: 18px; }
         .input-group label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--accent-blue); font-weight: bold; }
-        .input-group input { width: 100%; padding: 14px; border: 2px solid #ced4da; border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s; }
-        .input-group input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 4px rgba(30,61,107,0.15); }
-        
-        .btn { background: var(--navy); color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(13,34,64,0.25); text-align: center; margin-top: 10px; transition: 0.2s; }
-        .btn:hover { background: var(--accent-blue); }
+        .input-group input { width: 100%; padding: 14px; border: 2px solid #ced4da; border-radius: 12px; font-size: 15px; outline: none; }
+        .btn { background: var(--navy); color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(13,34,64,0.25); text-align: center; margin-top: 10px; transition: 0.2s; border: none; }
         .btn:active { transform: scale(0.98); }
-        .btn-primary-color { background: var(--primary); box-shadow: 0 4px 12px rgba(230,0,18,0.25); }
-        .btn-primary-color:hover { background: #b8000e; }
+        .btn-primary-color { background: var(--primary); }
         .btn-sec { background: transparent; color: var(--navy); border: 2px solid var(--navy); box-shadow: none; margin-top: 12px; }
-        .btn-sec:hover { background: rgba(13,34,64,0.05); }
-        .btn-danger { background: #dc3545; color: white; margin-top: 10px; box-shadow: 0 4px 10px rgba(220,53,69,0.2); }
-        
-        /* 選項網格 */
+        .btn-danger { background: #dc3545; color: white; margin-top: 10px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 15px; }
-        .card { background: #fff; border: 2px solid #dee2e6; border-radius: 16px; padding: 18px 10px; text-align: center; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.02); transition: 0.3s; }
-        .card:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
-        .card.selected { border-color: var(--primary); background: #fff5f5; box-shadow: 0 4px 12px rgba(230,0,18,0.1); }
+        .card { background: #fff; border: 2px solid #dee2e6; border-radius: 16px; padding: 18px 10px; text-align: center; cursor: pointer; }
+        .card.selected { border-color: var(--primary); background: #fff5f5; }
         .card .icon { font-size: 26px; margin-bottom: 6px; }
         .card .title { font-size: 14px; font-weight: bold; color: var(--navy); }
         .card .info { font-size: 11px; color: #666; margin-top: 5px; font-weight: bold; }
-        
-        /* 看板 */
         .board { background: #fffde7; border: 2px dashed #fdd835; border-radius: 14px; padding: 15px; text-align: center; margin-bottom: 15px; }
         .status-box { background: #e8f0fe; border: 1px solid #b3d1ff; border-radius: 14px; padding: 14px; margin-bottom: 15px; font-size: 14px; line-height: 1.6; }
-        .num-big { font-size: 52px; font-weight: 900; color: var(--primary); font-family: 'Impact', sans-serif; letter-spacing: 1px; }
-        
-        /* 倒數進度條 */
+        .num-big { font-size: 52px; font-weight: 900; color: var(--primary); font-family: 'Impact', sans-serif; }
         .progress-container { width: 100%; background-color: #eee; border-radius: 10px; margin-top: 10px; height: 12px; overflow: hidden; }
-        .progress-bar { width: 100%; height: 100%; background-color: var(--primary); width: 100%; transition: none; }
+        .progress-bar { width: 100%; height: 100%; background-color: var(--primary); width: 0%; }
         .qrcode-container { display: flex; justify-content: center; align-items: center; margin: 15px 0; background: white; padding: 12px; border-radius: 14px; border: 2px solid #eee; }
     </style>
 </head>
@@ -116,9 +87,7 @@
                     
                     <div id="homeQrZone" style="text-align: center; display: none; margin-top: 10px;">
                         <p style="font-size: 12px; color: #555; font-weight: bold;">🎟️ 專屬入場 QR Code (對準道閘掃描)</p>
-                        <div class="qrcode-container">
-                            <img id="homeQrImg" src="" alt="QR Code">
-                        </div>
+                        <div class="qrcode-container"><img id="homeQrImg" src="" alt="QR Code"></div>
                     </div>
 
                     <div id="timerZone" style="display:none; margin: 10px 0; padding: 12px; background: #fff3cd; border-radius: 12px; border: 1px solid #ffeeba;">
@@ -140,18 +109,10 @@
         <div class="page" id="pLaneSelect">
             <h2>選擇打擊球道</h2>
             <div class="grid">
-                <div class="card" id="lane1" onclick="selectLane(1, '90km 慢速打擊道')">
-                    <div class="icon">⚾</div><div class="title">90km 打擊道</div><div class="info" id="laneInfo1">載入中...</div>
-                </div>
-                <div class="card" id="lane2" onclick="selectLane(2, '110km 中速打擊道')">
-                    <div class="icon">🚀</div><div class="title">110km 打擊道</div><div class="info" id="laneInfo2">載入中...</div>
-                </div>
-                <div class="card" id="lane3" onclick="selectLane(3, '130km 快速打擊道')">
-                    <div class="icon">🔥</div><div class="title">130km 打擊道</div><div class="info" id="laneInfo3">載入中...</div>
-                </div>
-                <div class="card" id="lane4" onclick="selectLane(4, '壘球 慢速拋球道')">
-                    <div class="icon">🥎</div><div class="title">壘球拋球道</div><div class="info" id="laneInfo4">載入中...</div>
-                </div>
+                <div class="card" id="lane1" onclick="selectLane(1, '90km 慢速打擊道')"><div class="icon">⚾</div><div class="title">90km 打擊道</div><div class="info" id="laneInfo1">排隊 : --人</div></div>
+                <div class="card" id="lane2" onclick="selectLane(2, '110km 中速打擊道')"><div class="icon">🚀</div><div class="title">110km 打擊道</div><div class="info" id="laneInfo2">排隊 : --人</div></div>
+                <div class="card" id="lane3" onclick="selectLane(3, '130km 快速打擊道')"><div class="icon">🔥</div><div class="title">130km 打擊道</div><div class="info" id="laneInfo3">排隊 : --人</div></div>
+                <div class="card" id="lane4" onclick="selectLane(4, '壘球 慢速拋球道')"><div class="icon">🥎</div><div class="title">壘球拋球道</div><div class="info" id="laneInfo4">排隊 : --人</div></div>
             </div>
             <button class="btn btn-primary-color" onclick="confirmLane()">下一步：選擇方案</button>
             <button class="btn btn-sec" onclick="go('pMenu')">返回首頁</button>
@@ -180,12 +141,7 @@
                 <p style="font-size: 14px; color: #555;">您的排隊號碼</p>
                 <div class="num-big" id="sucNum" style="color: #28a745;">000</div>
             </div>
-            
-            <div class="qrcode-container">
-                <img id="sucQrImg" src="" alt="入場 QR Code" width="150" height="150">
-            </div>
-            <p style="font-size: 12px; color: #666; text-align: center; margin-bottom: 10px;">💡 您也可以在智慧首頁隨時查看此碼</p>
-
+            <div class="qrcode-container"><img id="sucQrImg" src="" alt="入場 QR Code" width="150" height="150"></div>
             <div class="status-box" style="background: #fff; border-color: #ccc; text-align: left; line-height: 2;">
                 <p>📍 預約球道：<span id="sucLane" style="font-weight: bold;">-</span></p>
                 <p>⏱️ 預計等候時間：<span id="sucTime" style="font-weight: bold; color: red;">-</span> 分鐘</p>
@@ -204,273 +160,156 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script>
+        // 大魯閣班級連線大腦
+        const client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "tk_c_" + Math.random().toString(16).substr(2, 8));
+        const TOPIC_SYNC = "taroko/smart/sync/v3";
         let chosenLaneId = null, chosenLaneName = "", chosenTokens = 0, chosenMins = 0;
-        let hasAlertedCalled = false; 
-        let isProcessingTimeout = false; 
+        let hasAlertedCalled = false, localTimer = null, startTime = 0;
+        let db = { members: {}, lanes: {1:{c:0,l:0},2:{c:0,l:0},3:{c:0,l:0},4:{c:0,l:0}}, user_queue: {} };
 
-        function go(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            let logged = localStorage.getItem('tk_current_logged_phone');
-            document.getElementById('userBar').style.display = logged ? 'flex' : 'none';
-            if(logged) {
-                if(!localStorage.getItem('tk_pwd_' + logged)) { logout(); return; }
-                document.getElementById('barName').innerText = localStorage.getItem('tk_pwd_' + logged);
-                document.getElementById('barTokens').innerText = localStorage.getItem('tk_tkn_' + logged) || 60;
-            }
-            if(id === 'pMenu') { isProcessingTimeout = false; updateMenuUI(); }
-            if(id === 'pLaneSelect') updateLaneSelectUI();
-        }
+        client.onMessageArrived = function(msg) {
+            try {
+                db = JSON.parse(msg.payloadString);
+                let logged = localStorage.getItem('tk_current_logged_phone');
+                if(logged) {
+                    if(db.members[logged]) {
+                        document.getElementById('barTokens').innerText = db.members[logged].tokens;
+                    }
+                    // 每次雲端收到後台動態，立刻同步刷新介面
+                    if(document.getElementById('pMenu').classList.contains('active')) { updateMenuUI(); }
+                }
+                if(document.getElementById('pLaneSelect').classList.contains('active')) { updateLaneSelectUI(); }
+            } catch(e){}
+        };
+        client.connect({ onSuccess: () => { client.subscribe(TOPIC_SYNC); syncDB(); } });
 
+        function syncDB() { if(client.isConnected()) { client.send(TOPIC_SYNC, JSON.stringify(db), 0, true); } }
+        function go(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); let logged = localStorage.getItem('tk_current_logged_phone'); if(logged && db.members[logged]) { document.getElementById('barName').innerText = db.members[logged].name; document.getElementById('barTokens').innerText = db.members[logged].tokens; } if(id==='pMenu') { updateMenuUI(); } if(id==='pLaneSelect') updateLaneSelectUI(); }
         function fmt(n) { return n === 0 ? "000" : String(n).padStart(3, '0'); }
-
-        function register() {
-            let name = document.getElementById('regName').value.trim();
-            let phone = document.getElementById('regPhone').value.trim();
-            if(!name || !phone) return alert("請填寫姓名與手機！");
-            
-            localStorage.setItem('tk_pwd_' + phone, name);
-            localStorage.setItem('tk_tkn_' + phone, 60);
-            
-            // 將手機加入全店註冊清冊中，供後台讀取
-            let list = JSON.parse(localStorage.getItem('tk_all_members') || "[]");
-            if(!list.includes(phone)) { list.push(phone); localStorage.setItem('tk_all_members', JSON.stringify(list)); }
-
-            alert("🎉 註冊成功！（此帳號已全面重設，代幣補滿 60 枚）");
-            go('pLogin');
-        }
-
-        function login() {
-            let phone = document.getElementById('logPhone').value.trim();
-            let name = localStorage.getItem('tk_pwd_' + phone);
-            if(!name) return alert("找不到帳號，請先進行註冊！");
-            localStorage.setItem('tk_current_logged_phone', phone);
-            go('pMenu');
-        }
-
-        function logout() { localStorage.removeItem('tk_current_logged_phone'); go('pLogin'); }
+        function register() { let n = document.getElementById('regName').value.trim(), p = document.getElementById('regPhone').value.trim(); if(!n||!p) return alert("請完整填寫註冊資料！"); db.members[p] = { name: n, tokens: 60 }; syncDB(); alert("🎉 註冊成功！預設代幣已補滿 60 枚。"); go('pLogin'); }
+        function login() { let p = document.getElementById('logPhone').value.trim(); if(!db.members[p]) return alert("找不到帳號，請先註冊！"); localStorage.setItem('tk_current_logged_phone', p); go('pMenu'); }
+        function logout() { localStorage.removeItem('tk_current_logged_phone'); if(localTimer) clearInterval(localTimer); go('pLogin'); }
+        function charge(amt) { let p = localStorage.getItem('tk_current_logged_phone'); db.members[p].tokens += amt; syncDB(); alert(`💳 儲值成功！增加 ${amt} 枚代幣。`); go('pMenu'); }
+        function updateLaneSelectUI() { for(let i=1; i<=4; i++) { let w = db.lanes[i].l - db.lanes[i].c; document.getElementById(`laneInfo${i}`).innerText = `排隊：${w}人 / 需等：${w * 5}分鐘`; } }
+        function selectLane(id, name) { chosenLaneId = id; chosenLaneName = name; document.querySelectorAll('#pLaneSelect .card').forEach(c => c.classList.remove('selected')); document.getElementById(`lane${id}`).classList.add('selected'); }
+        function confirmLane() { if(!chosenLaneId) return alert("請先選擇球道！"); document.getElementById('pkgTargetLane').innerText = `目標球道：${chosenLaneName}`; go('pPackage'); }
+        function selectPkg(tokens, balls, mins) { chosenTokens = tokens; chosenMins = mins; document.querySelectorAll('#pPackage .card').forEach(c => c.classList.remove('selected')); if(tokens === 30) document.getElementById('pkg1').classList.add('selected'); if(tokens === 60) document.getElementById('pkg2').classList.add('selected'); }
         
-        function charge(amt) {
-            let p = localStorage.getItem('tk_current_logged_phone');
-            let t = parseInt(localStorage.getItem('tk_tkn_' + p)) || 0;
-            localStorage.setItem('tk_tkn_' + p, t + amt);
-            alert(`💳 儲值成功！增加 ${amt} 枚代幣。`);
-            localStorage.setItem('tk_sync', Date.now());
-            go('pMenu');
-        }
-
-        function updateLaneSelectUI() {
-            for(let i=1; i<=4; i++) {
-                let curCall = parseInt(localStorage.getItem(`tk_lane_${i}_curCall`)) || 0;
-                let latTick = parseInt(localStorage.getItem(`tk_lane_${i}_latTick`)) || 0;
-                let waitPeople = latTick - curCall;
-                document.getElementById(`laneInfo${i}`).innerText = `排隊：${waitPeople}人 / 需等：${waitPeople * 5}分鐘`;
-            }
-        }
-
-        function selectLane(id, name) {
-            chosenLaneId = id; chosenLaneName = name;
-            document.querySelectorAll('#pLaneSelect .card').forEach(c => c.classList.remove('selected'));
-            document.getElementById(`lane${id}`).classList.add('selected');
-        }
-
-        function confirmLane() {
-            if(!chosenLaneId) return alert("請先選擇一個球道！");
-            document.getElementById('pkgTargetLane').innerText = `目標球道：${chosenLaneName}`;
-            document.querySelectorAll('#pPackage .card').forEach(c => c.classList.remove('selected'));
-            chosenTokens = 0;
-            go('pPackage');
-        }
-
-        function selectPkg(tokens, balls, mins) {
-            chosenTokens = tokens; chosenMins = mins;
-            document.querySelectorAll('#pPackage .card').forEach(c => c.classList.remove('selected'));
-            if(tokens === 30) document.getElementById('pkg1').classList.add('selected');
-            if(tokens === 60) document.getElementById('pkg2').classList.add('selected');
-        }
-
         function submitQueue() {
-            if(!chosenTokens) return alert("請選擇擊球方案！");
+            if(!chosenTokens) return alert("請選擇方案！");
             let p = localStorage.getItem('tk_current_logged_phone');
-            let t = parseInt(localStorage.getItem('tk_tkn_' + p)) || 0;
-            if(t < chosenTokens) return alert("🪙 代幣不足，請先去儲值！");
+            if(db.members[p].tokens < chosenTokens) return alert("🪙 代幣不足，請先去儲值！");
+            db.members[p].tokens -= chosenTokens;
+            db.lanes[chosenLaneId].l++;
+            let myNum = db.lanes[chosenLaneId].l;
+            db.user_queue[p] = { laneId: chosenLaneId, laneName: chosenLaneName, myNum: myNum, cost: chosenTokens };
+            syncDB();
 
-            localStorage.setItem('tk_tkn_' + p, t - chosenTokens);
-
-            let latTick = parseInt(localStorage.getItem(`tk_lane_${chosenLaneId}_latTick`)) || 0;
-            latTick++;
-            localStorage.setItem(`tk_lane_${chosenLaneId}_latTick`, latTick);
-
-            localStorage.setItem(`tk_user_laneId_${p}`, chosenLaneId);
-            localStorage.setItem(`tk_user_laneName_${p}`, chosenLaneName);
-            localStorage.setItem(`tk_user_myNum_${p}`, latTick);
-            localStorage.setItem(`tk_user_cost_${p}`, chosenTokens);
-
-            let qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAROKO_LANE_${chosenLaneId}_NUM_${latTick}`;
-            document.getElementById('sucQrImg').src = qrUrl;
-
-            document.getElementById('sucNum').innerText = fmt(latTick);
+            document.getElementById('sucQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAROKO_LANE_${chosenLaneId}_NUM_${myNum}`;
+            document.getElementById('sucNum').innerText = fmt(myNum);
             document.getElementById('sucLane').innerText = chosenLaneName;
-            
-            let curCall = parseInt(localStorage.getItem(`tk_lane_${chosenLaneId}_curCall`)) || 0;
-            let waitPeople = latTick - 1 - curCall; 
-            document.getElementById('sucTime').innerText = waitPeople * 5;
-            document.getElementById('sucTokens').innerText = t - chosenTokens;
-
+            document.getElementById('sucTime').innerText = (myNum - 1 - db.lanes[chosenLaneId].c) * 5;
+            document.getElementById('sucTokens').innerText = db.members[p].tokens;
             hasAlertedCalled = false;
-            isProcessingTimeout = false;
-            localStorage.setItem('tk_sync', Date.now()); 
             go('pSuccess');
         }
 
         function cancelQueue() {
-            if(!confirm("確定要取消預約並退回代幣嗎？")) return;
-            let p = localStorage.getItem('tk_current_logged_phone');
-            let myLaneId = localStorage.getItem(`tk_user_laneId_${p}`);
-            let costTokens = parseInt(localStorage.getItem(`tk_user_cost_${p}`)) || 0;
-            let currentTokens = parseInt(localStorage.getItem('tk_tkn_' + p)) || 0;
-
-            localStorage.setItem('tk_tkn_' + p, currentTokens + costTokens);
-
-            let latTick = parseInt(localStorage.getItem(`tk_lane_${myLaneId}_latTick`)) || 0;
-            if(latTick > 0) localStorage.setItem(`tk_lane_${myLaneId}_latTick`, latTick - 1);
-
-            clearUserQueueData(p);
-            alert(`❌ 已成功取消排隊！退還 ${costTokens} 枚代幣。`);
-            localStorage.setItem('tk_sync', Date.now());
-            go('pMenu');
-        }
-
-        function autoRefundOvertime() {
-            if (isProcessingTimeout) return;
-            isProcessingTimeout = true;
-
-            let p = localStorage.getItem('tk_current_logged_phone');
-            let costTokens = parseInt(localStorage.getItem(`tk_user_cost_${p}`)) || 0;
-            let currentTokens = parseInt(localStorage.getItem('tk_tkn_' + p)) || 0;
-            
-            localStorage.setItem('tk_tkn_' + p, currentTokens + costTokens);
-            clearUserQueueData(p);
-            
-            speak("已過號，請重新排隊。");
-            go('pMenu');
-            alert(`⏱️ 抱歉！您已超過 30 秒未進場報到。\n系統已自動將您過號，並退還 ${costTokens} 枚代幣，請重新排隊。`);
-            localStorage.setItem('tk_sync', Date.now());
-        }
-
-        function clearUserQueueData(phone) {
-            localStorage.removeItem(`tk_user_laneId_${phone}`);
-            localStorage.removeItem(`tk_user_laneName_${phone}`);
-            localStorage.removeItem(`tk_user_myNum_${phone}`);
-            localStorage.removeItem(`tk_user_cost_${phone}`);
-            hasAlertedCalled = false;
+            if(!confirm("確定要取消預約嗎？")) return;
+            let p = localStorage.getItem('tk_current_logged_phone'), q = db.user_queue[p];
+            db.members[p].tokens += q.cost;
+            if(db.lanes[q.laneId].l > 0) db.lanes[q.laneId].l--;
+            delete db.user_queue[p];
+            syncDB(); alert("❌ 已成功取消排隊並退還代幣！"); go('pMenu');
         }
 
         function speak(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 let u = new SpeechSynthesisUtterance(text);
-                u.lang = 'zh-TW';
-                window.speechSynthesis.speak(u);
+                u.lang = 'zh-TW'; window.speechSynthesis.speak(u);
             }
+        }
+
+        function autoRefundOvertime() {
+            if(localTimer) clearInterval(localTimer);
+            let p = localStorage.getItem('tk_current_logged_phone'), q = db.user_queue[p];
+            if(!q) return;
+            db.members[p].tokens += q.cost;
+            delete db.user_queue[p];
+            syncDB();
+            speak("已過號，請重新排隊。");
+            document.getElementById('timerZone').style.display = 'none';
+            hasAlertedCalled = false;
+            go('pMenu');
+            alert(`⏱️ 您已超過 30 秒未進場報到。\n系統已自動為您過號並辦理退款，請重新排隊。`);
+        }
+
+        // 【極致修復】：100% 獨立的本地高流暢計時器引擎（不依賴伺服器時差）
+        function startLocalCountdown() {
+            if(localTimer) clearInterval(localTimer);
+            startTime = Date.now();
+            
+            localTimer = setInterval(() => {
+                let passed = Date.now() - startTime;
+                let rem = (30000 - passed) / 1000;
+                
+                if(rem >= 0) {
+                    document.getElementById('countdownSec').innerText = rem.toFixed(1);
+                    document.getElementById('pBar').style.width = (rem / 30 * 100) + '%';
+                } else {
+                    clearInterval(localTimer);
+                    autoRefundOvertime(); // 時間到，主動退幣
+                }
+            }, 100); // 每 0.1 秒極速渲染
         }
 
         function updateMenuUI() {
             let p = localStorage.getItem('tk_current_logged_phone');
-            if(!p) return;
-            let myLaneId = localStorage.getItem(`tk_user_laneId_${p}`);
-            
-            if(!myLaneId) {
+            if(!p || !db.user_queue[p]) {
+                if(localTimer) clearInterval(localTimer);
                 document.getElementById('hasNoQueue').style.display = 'block';
                 document.getElementById('hasQueue').style.display = 'none';
                 document.getElementById('btnGoQueue').style.display = 'block';
                 return;
             }
-            
             document.getElementById('hasNoQueue').style.display = 'none';
             document.getElementById('hasQueue').style.display = 'block';
             document.getElementById('btnGoQueue').style.display = 'none';
-
-            let curCall = parseInt(localStorage.getItem(`tk_lane_${myLaneId}_curCall`)) || 0;
-            let myNum = parseInt(localStorage.getItem(`tk_user_myNum_${p}`));
-            let waitPeople = myNum - curCall - 1;
-
-            document.getElementById('hLane').innerText = localStorage.getItem(`tk_user_laneName_${p}`);
-            document.getElementById('hCurCall').innerText = fmt(curCall);
-            document.getElementById('hMyNum').innerText = fmt(myNum);
-
+            
+            let q = db.user_queue[p], lane = db.lanes[q.laneId];
+            document.getElementById('hLane').innerText = q.laneName;
+            document.getElementById('hCurCall').innerText = fmt(lane.c);
+            document.getElementById('hMyNum').innerText = fmt(q.myNum);
             document.getElementById('homeQrZone').style.display = 'block';
-            document.getElementById('homeQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=TAROKO_LANE_${myLaneId}_NUM_${myNum}`;
-
-            if (myNum === curCall) {
+            document.getElementById('homeQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=TAROKO_LANE_${q.laneId}_NUM_${q.myNum}`;
+            
+            // 關鍵觸發點：只要發現叫號對上自己，且還沒響過通知
+            if (q.myNum === lane.c) {
+                document.getElementById('hWaitCount').innerText = "0";
+                document.getElementById('hWaitTime').innerHTML = `<span style="color:green; font-weight:bold;">🔥 到您了！請進場！</span>`;
                 document.getElementById('timerZone').style.display = 'block';
-                document.getElementById('btnCancel').style.display = 'none'; 
-
+                document.getElementById('btnCancel').style.display = 'none';
+                
                 if(!hasAlertedCalled) {
-                    speak(`換你了！號碼牌 ${fmt(myNum)} 號球友，你有三十秒進入時間，請立即前往報到！`);
-                    alert(`🚨【大魯閣通知】\n換你了！您的號碼是 ${fmt(myNum)}，你有 30 秒進入時間，請立即前往報到！`);
                     hasAlertedCalled = true;
+                    startLocalCountdown(); // 1. 手機立刻啟動本地倒數
+                    speak(`換你了！號碼牌 ${fmt(q.myNum)} 號球友，請立即報到！`); // 2. 發出語音
+                    setTimeout(() => { alert(`🚨【大魯閣通知】換你了！\n請在 30 秒內完成核銷報到！`); }, 100); // 3. 彈出通知框
                 }
-            } else if (myNum < curCall) {
+            } else if (q.myNum < lane.c) {
+                // 如果在後台被強行跳號
                 autoRefundOvertime();
             } else {
-                document.getElementById('hWaitCount').innerText = waitPeople < 0 ? 0 : waitPeople;
-                document.getElementById('hWaitTime').innerText = (waitPeople < 0 ? 0 : waitPeople) * 5;
+                document.getElementById('hWaitCount').innerText = q.myNum - lane.c - 1;
+                document.getElementById('hWaitTime').innerText = (q.myNum - lane.c - 1) * 5;
                 document.getElementById('timerZone').style.display = 'none';
                 document.getElementById('btnCancel').style.display = 'block';
+                if(localTimer) { clearInterval(localTimer); hasAlertedCalled = false; }
             }
         }
-
-        // 30秒高流暢核心計時核心
-        function renderLoop() {
-            let p = localStorage.getItem('tk_current_logged_phone');
-            if(p && document.getElementById('pMenu').classList.contains('active')) {
-                let myLaneId = localStorage.getItem(`tk_user_laneId_${p}`);
-                if(myLaneId) {
-                    let curCall = parseInt(localStorage.getItem(`tk_lane_${myLaneId}_curCall`)) || 0;
-                    let myNum = parseInt(localStorage.getItem(`tk_user_myNum_${p}`));
-                    
-                    if(myNum === curCall && !isProcessingTimeout) {
-                        let startTime = parseInt(localStorage.getItem(`tk_lane_${myLaneId}_timerStart`)) || 0;
-                        if(startTime > 0) {
-                            let passedMilli = Date.now() - startTime;
-                            let remFloat = (30000 - passedMilli) / 1000; // 精準 30 秒
-                            
-                            if(remFloat >= 0) {
-                                document.getElementById('countdownSec').innerText = remFloat.toFixed(1);
-                                document.getElementById('pBar').style.width = (remFloat / 30 * 100) + '%';
-                            } else {
-                                document.getElementById('countdownSec').innerText = "0.0";
-                                document.getElementById('pBar').style.width = '0%';
-                                autoRefundOvertime();
-                            }
-                        }
-                    }
-                }
-            }
-            requestAnimationFrame(renderLoop);
-        }
-
-        setInterval(() => {
-            let logged = localStorage.getItem('tk_current_logged_phone');
-            if(logged && document.getElementById('pMenu').classList.contains('active')) {
-                updateMenuUI();
-            }
-        }, 1000);
-
-        window.addEventListener('storage', () => {
-            let logged = localStorage.getItem('tk_current_logged_phone');
-            if(logged) {
-                document.getElementById('barTokens').innerText = localStorage.getItem('tk_tkn_' + logged) || 60;
-                updateMenuUI();
-            }
-        });
-
-        window.onload = () => { 
-            go(localStorage.getItem('tk_current_logged_phone') ? 'pMenu' : 'pLogin'); 
-            requestAnimationFrame(renderLoop);
-        };
     </script>
 </body>
 </html>
