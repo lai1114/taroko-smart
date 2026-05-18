@@ -3,31 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大魯閣-智慧中控自動化系統</title>
+    <title>大魯閣-中央智慧中控自動化系統</title>
     <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #071324; color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: Arial, sans-serif; background: #071324; color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 650px; background: #0D2240; padding: 25px; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); border: 1px solid #1E3D6B; }
         h1 { font-size: 22px; text-align: center; color: #ffc107; margin-bottom: 5px; font-weight: bold; }
         .subtitle { text-align: center; color: #a2b4cd; font-size: 13px; margin-bottom: 25px; }
         .lane-box { background: #162E50; border-radius: 12px; padding: 18px; margin-bottom: 15px; border-left: 6px solid #28a745; }
         .lane-box.busy { border-left-color: #ffc107; }
-        .lane-title { font-weight: bold; font-size: 17px; margin-bottom: 8px; }
+        .lane-title { font-weight: bold; font-size: 17px; margin-bottom: 8px; color: #fff; }
         .lane-status { font-size: 13px; color: #cbd5e1; margin-bottom: 5px; line-height: 1.6; }
         .timer-text { color: #e60012; font-weight: bold; font-size: 16px; }
-        .btn-check { background: #28a745; color: white; border: none; padding: 8px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; float: right; font-size: 13px; }
+        .btn-check { background: #28a745; color: white; border: none; padding: 8px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; float: right; font-size: 13px; border:none; }
         .member-panel { background: #102A4D; border-radius: 12px; padding: 15px; margin-top: 25px; border: 1px solid #1E3D6B; }
         .member-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; text-align: left; }
         .member-table th { background: #071324; color: #ffc107; padding: 10px; }
         .member-table td { padding: 10px; border-bottom: 1px solid #1E3D6B; color: #e2e8f0; }
-        .btn-danger-zone { background: #e60012; color: white; border: none; padding: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 25px; font-size: 15px; }
+        .btn-danger-zone { background: #e60012; color: white; border: none; padding: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 25px; font-size: 15px; border: none; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🤖 大魯閣中央智慧雲端中控台</h1>
-        <div class="subtitle">【全班真實跨裝置同步連線中】30秒未到自動過號退款</div>
+        <div class="subtitle">【全班真實跨裝置同步連線中】30秒超時未到自動過號退款</div>
         <div id="lanesList"></div>
-        
         <div class="member-panel">
             <h3>👥 現場連線註冊會員名冊 (資安去識別化過濾)</h3>
             <table class="member-table">
@@ -35,99 +34,57 @@
                 <tbody id="memberListBody"></tbody>
             </table>
         </div>
-        <button class="btn-danger-zone" onclick="wipeOutEverything()">🔥 全店終極大重整 (抹除所有資料)</button>
+        <button class="btn-danger-zone" onclick="wipeOutEverything()">🔥 全店終極大重整 (抹除雲端所有會員與排隊)</button>
     </div>
 
     <script>
+        const CLOUD_URL = "https://script.google.com/macros/s/AKfycbw7j83TUXrF6QcKdBaS9FRERmEBv5nQtPY_oYirOK5wB6bNd5cf1ObMfQNxEUMRBOwo/exec";
         const lanes = [{ id: 1, name: "90km 慢速打擊道" }, { id: 2, name: "110km 中速打擊道" }, { id: 3, name: "130km 快速打擊道" }, { id: 4, name: "壘球 慢速拋球道" }];
+        let db = { members: {}, lanes: {1:{c:0,l:0,t:0,b:false},2:{c:0,l:0,t:0,b:false},3:{c:0,l:0,t:0,b:false},4:{c:0,l:0,t:0,b:false}}, user_queue: {} };
 
+        function pullDB() { fetch(CLOUD_URL).then(r => r.json()).then(data => { db = data; checkAndAutoManage(); }).catch(e => {}); }
+        function pushDB() { fetch(CLOUD_URL, { method: "POST", body: JSON.stringify(db) }).then(() => pullDB()); }
         function fmt(n) { return !n || n == 0 ? "000" : String(n).padStart(3, '0'); }
 
         function checkAndAutoManage() {
-            let html = "";
-            let now = Date.now();
-
+            let html = "", now = Date.now(), changed = false;
             lanes.forEach(l => {
-                let curCall = parseInt(localStorage.getItem(`tk_lane_${l.id}_curCall`))||0;
-                let latTick = parseInt(localStorage.getItem(`tk_lane_${l.id}_latTick`))||0;
-                let timerStart = parseInt(localStorage.getItem(`tk_lane_${l.id}_timerStart`))||0;
-                let isBusy = localStorage.getItem(`tk_lane_${l.id}_isBusy`) === 'true';
+                let lane = db.lanes[l.id] || {c:0, l:0, t:0, b:false};
 
                 // 自動智慧叫號遞補
-                if (latTick > curCall && !isBusy && timerStart === 0) {
-                    curCall++;
-                    localStorage.setItem(`tk_lane_${l.id}_curCall`, curCall);
-                    localStorage.setItem(`tk_lane_${l.id}_timerStart`, now);
-                    timerStart = now;
-                    localStorage.setItem('tk_sync', now);
+                if (lane.l > lane.c && !lane.b && lane.t === 0) {
+                    lane.c++; lane.t = now; changed = true;
                 }
 
                 let statusText = "💤 目前無人排隊，球道閒置中";
-                if (isBusy) {
-                    statusText = `🟢 擊球中... 正在消耗代幣`;
-                } else if (timerStart > 0) {
-                    let rem = (30000 - (now - timerStart)) / 1000;
+                if (lane.b) { statusText = `🟢 擊球中... 正在消耗代幣`; }
+                else if (lane.t > 0) {
+                    let rem = (30000 - (now - lane.t)) / 1000;
                     if (rem <= 0) {
-                        // 超時未到，後台自動執行清除過號與退回代幣
-                        curCall = curCall; 
-                        localStorage.setItem(`tk_lane_${l.id}_timerStart`, 0);
-                        localStorage.setItem('tk_sync', now);
-                        return;
+                        let targetUser = Object.keys(db.user_queue).find(k => db.user_queue[k].laneId === l.id && db.user_queue[k].myNum === lane.c);
+                        if(targetUser) { db.members[targetUser].tokens += db.user_queue[targetUser].cost; delete db.user_queue[targetUser]; }
+                        lane.t = 0; changed = true; return;
                     }
-                    statusText = `⏳ 號碼 <strong>${fmt(curCall)}</strong> 叫號中！剩餘 <span class="timer-text">${rem.toFixed(1)}秒</span>`;
+                    statusText = `⏳ 號碼 <strong>${fmt(lane.c)}</strong> 叫號中！剩餘 <span class="timer-text">${rem.toFixed(1)}秒</span>`;
                 }
 
-                let wait = latTick - curCall; if(wait < 0) wait = 0;
-                html += `
-                    <div class="lane-box ${isBusy ? 'busy' : ''}">
-                        ${timerStart > 0 && !isBusy ? `<button class="btn-check" onclick="confirmCheckIn(${l.id})">✅ 確認報到</button>` : ''}
-                        ${isBusy ? `<button class="btn-check" style="background:#6c757d;" onclick="finishHitting(${l.id})">🏁 擊球結束</button>` : ''}
-                        <div class="lane-title">${l.name}</div>
-                        <div class="lane-status">📌 當前叫號：<strong>${fmt(curCall)}</strong> | 總取號至：<strong>${fmt(latTick)}</strong> | 排隊中：<strong>${wait} 人</strong><br>📢 狀態：${statusText}</div>
-                    </div>
-                `;
+                let wait = lane.l - lane.c; if(wait < 0) wait = 0;
+                html += `<div class="lane-box ${lane.b ? 'busy' : ''}">${lane.t > 0 && !lane.b ? `<button class="btn-check" onclick="confirmCheckIn(${l.id})">✅ 確認報到</button>` : ''}${lane.b ? `<button class="btn-check" style="background:#6c757d;" onclick="finishHitting(${l.id})">🏁 擊球結束</button>` : ''}<div class="lane-title">${l.name}</div><div class="lane-status">📌 當前叫號：<strong>${fmt(lane.c)}</strong> | 總取號至：<strong>${fmt(lane.l)}</strong> | 排隊中：<strong>${wait} 人</strong><br>📢 狀態：${statusText}</div></div>`;
             });
+            if(changed) { pushDB(); return; }
             document.getElementById('lanesList').innerHTML = html;
             renderMembers();
         }
 
         function renderMembers() {
             let html = "";
-            for (let i = 0; i < localStorage.length; i++) {
-                let key = localStorage.key(i);
-                if (key.startsWith('tk_name_')) {
-                    let phone = key.replace('tk_name_', '');
-                    let name = localStorage.getItem(key);
-                    let tokens = localStorage.getItem('tk_tkn_' + phone) || 0;
-                    html += `<tr><td><strong>${name}</strong></td><td><code>${phone.substring(0,4)}***${phone.substring(phone.length-3)}</code></td><td>${tokens} 枚</td></tr>`;
-                }
-            }
+            Object.keys(db.members).forEach(phone => { let m = db.members[phone]; html += `<tr><td><strong>${m.name}</strong></td><td><code>${phone.substring(0,4)}***${phone.substring(phone.length-3)}</code></td><td>${m.tokens} 枚</td></tr>`; });
             document.getElementById('memberListBody').innerHTML = html || `<tr><td colspan="3" style="text-align:center;color:#888;">目前無連線資料</td></tr>`;
         }
-
-        function confirmCheckIn(id) {
-            localStorage.setItem(`tk_lane_${id}_isBusy`, 'true');
-            localStorage.setItem(`tk_lane_${id}_timerStart`, 0);
-            localStorage.setItem('tk_sync', Date.now());
-            checkAndAutoManage();
-        }
-
-        function finishHitting(id) {
-            localStorage.setItem(`tk_lane_${id}_isBusy`, 'false');
-            localStorage.setItem('tk_sync', Date.now());
-            checkAndAutoManage();
-        }
-
-        function wipeOutEverything() {
-            if(confirm("確定要全面清洗大腦嗎？")) {
-                localStorage.clear();
-                localStorage.setItem('tk_sync', Date.now());
-                checkAndAutoManage();
-            }
-        }
-
-        window.addEventListener('storage', () => { checkAndAutoManage(); });
-        setInterval(checkAndAutoManage, 100);
+        function confirmCheckIn(id) { db.lanes[id].b = true; db.lanes[id].t = 0; pushDB(); }
+        function finishHitting(id) { db.lanes[id].b = false; pushDB(); }
+        function wipeOutEverything() { if(confirm("確定要全面清洗大腦嗎？")) { fetch(CLOUD_URL, { method: "POST", body: "WIPE" }).then(() => pullDB()); } }
+        setInterval(pullDB, 1500);
     </script>
 </body>
 </html>
